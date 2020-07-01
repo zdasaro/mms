@@ -143,7 +143,13 @@ Window::Window(QWidget *parent) :
     QHBoxLayout* upperLayout = new QHBoxLayout();
     upperLayout->addWidget(controlsGroupBox);
     upperLayout->addWidget(configGroupBox);
+    QGroupBox* statsGroupBox = new QGroupBox("Stats");
+    QGridLayout* statsLayout = new QGridLayout();
+    statsGroupBox->setLayout(statsLayout);
+    QHBoxLayout* upperSecondLayout = new QHBoxLayout();
+    upperSecondLayout->addWidget(statsGroupBox);
     panelLayout->addLayout(upperLayout);
+    panelLayout->addLayout(upperSecondLayout);
 
     // Add the mouse algo build and run buttons
     controlsLayout->addWidget(m_buildButton, 0, 0);
@@ -263,6 +269,19 @@ Window::Window(QWidget *parent) :
         &Window::onMouseAlgoImportButtonPressed
     );
 
+    // Add stats labels
+    stats = new Stats();
+    createStat("Total Distance", TOTAL_DISTANCE, 0, 0, 0, 1, statsLayout);
+    createStat("Total Effective Distance", TOTAL_EFFECTIVE_DISTANCE, 1, 0, 1, 1, statsLayout);
+    createStat("Total Turns", TOTAL_TURNS, 2, 0, 2, 1, statsLayout);
+    createStat("Current Run Distance", CURRENT_RUN_DISTANCE, 0, 2, 0, 3, statsLayout);
+    createStat("Current Run Effective Distance", CURRENT_RUN_EFFECTIVE_DISTANCE, 1, 2, 1, 3, statsLayout);
+    createStat("Current Run Turns", CURRENT_RUN_TURNS, 2, 2, 2, 3, statsLayout);
+    createStat("Best Run Distance", BEST_RUN_DISTANCE, 3, 0, 3, 1, statsLayout);
+    createStat("Best Run Effective Distance", BEST_RUN_EFFECTIVE_DISTANCE, 4, 0, 4, 1, statsLayout);
+    createStat("Best Run Turns", BEST_RUN_TURNS, 5, 0, 5, 1, statsLayout);
+    createStat("Score", SCORE, 6, 0, 6, 1, statsLayout);
+
     // Add the build and run outputs to the panel
     panelLayout->addWidget(m_mouseAlgoOutputTabWidget);
     m_mouseAlgoOutputTabWidget->addTab(m_buildOutput, "Build Output");
@@ -363,6 +382,7 @@ void Window::onMazeFileComboBoxChanged(QString path) {
         return;
     }
     updateMazeAndPath(maze, path);
+    stats->resetAll();
 }
 
 void Window::onColorButtonPressed() {
@@ -470,6 +490,7 @@ void Window::onMouseAlgoComboBoxChanged(QString name) {
     m_runStatus->setStyleSheet("");
     m_runOutput->clear();
     SettingsMisc::setRecentMouseAlgo(name);
+    stats->resetAll();
 }
 
 void Window::onMouseAlgoEditButtonPressed() {
@@ -799,6 +820,9 @@ void Window::startRun() {
         // Only enabled while mouse is running
         m_pauseButton->setEnabled(true);
         m_resetButton->setEnabled(true);
+
+        // reset score
+        stats->resetAll();
     } 
     else {
         // Clean up the failed process
@@ -1256,6 +1280,13 @@ void Window::updateMouseProgress(double progress) {
         if (m_movesRemaining == 0) {
             m_movement = Movement::NONE;
         }
+        // determine if the goal was reached
+        if (m_maze->isGoal(m_startingLocation)) {
+            stats->finishRun(true); // record a finished start-to-finish run, if valid
+        }
+        else if (m_startingLocation.first == 0 && m_startingLocation.second == 0) {
+            stats->finishRun(false);
+        }
     }
 }
 
@@ -1288,6 +1319,15 @@ void Window::scheduleMouseProgressUpdate() {
 
 bool Window::isMoving() {
     return m_movement != Movement::NONE;
+}
+
+void Window::createStat(QString name, enum StatsEnum stat, int labelRow, int labelCol, int valueRow, int valueCol, QGridLayout* layout) {
+    QLabel* label = new QLabel(name);
+    layout->addWidget(label, labelRow, labelCol);
+    QLineEdit* textbox = new QLineEdit();
+    textbox->setReadOnly(true);
+    stats->bindText(stat, textbox);
+    layout->addWidget(textbox, valueRow, valueCol);
 }
 
 int Window::mazeWidth() {
@@ -1353,6 +1393,10 @@ bool Window::moveForward(int distance) {
     m_movement = Movement::MOVE_FORWARD;
     m_doomedToCrash = (moves != distance);
     m_movesRemaining = moves;
+    if (m_startingLocation.first == 0 && m_startingLocation.second == 0) {
+        stats->startRun();
+    }
+    stats->addDistance(moves);
     return true;
 }
 
@@ -1360,12 +1404,14 @@ void Window::turnRight() {
     m_movement = Movement::TURN_RIGHT;
     m_doomedToCrash = false;
     m_movesRemaining = 0;
+    stats->addTurn();
 }
 
 void Window::turnLeft() {
     m_movement = Movement::TURN_LEFT;
     m_doomedToCrash = false;
     m_movesRemaining = 0;
+    stats->addTurn();
 }
 
 void Window::setWall(int x, int y, QChar direction) {
@@ -1473,6 +1519,8 @@ void Window::ackReset() {
     m_resetButton->setEnabled(true);
     m_resetButton->setText("Reset");
     m_wasReset = false;
+    stats->penalizeForReset();
+    stats->finishRun(false);
 }
 
 QString Window::boolToString(bool value) const {
