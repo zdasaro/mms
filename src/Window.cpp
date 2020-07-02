@@ -143,13 +143,10 @@ Window::Window(QWidget *parent) :
     QHBoxLayout* upperLayout = new QHBoxLayout();
     upperLayout->addWidget(controlsGroupBox);
     upperLayout->addWidget(configGroupBox);
-    QGroupBox* statsGroupBox = new QGroupBox("Stats");
-    QGridLayout* statsLayout = new QGridLayout();
-    statsGroupBox->setLayout(statsLayout);
-    QHBoxLayout* upperSecondLayout = new QHBoxLayout();
-    upperSecondLayout->addWidget(statsGroupBox);
     panelLayout->addLayout(upperLayout);
-    panelLayout->addLayout(upperSecondLayout);
+    QWidget* statsWidget = new QWidget();
+    QGridLayout* statsLayout = new QGridLayout();
+    statsWidget->setLayout(statsLayout);
 
     // Add the mouse algo build and run buttons
     controlsLayout->addWidget(m_buildButton, 0, 0);
@@ -286,6 +283,7 @@ Window::Window(QWidget *parent) :
     panelLayout->addWidget(m_mouseAlgoOutputTabWidget);
     m_mouseAlgoOutputTabWidget->addTab(m_buildOutput, "Build Output");
     m_mouseAlgoOutputTabWidget->addTab(m_runOutput, "Run Output");
+    m_mouseAlgoOutputTabWidget->addTab(statsWidget, "Stats");
     for (QPlainTextEdit* output : {m_buildOutput, m_runOutput}) {
         output->setReadOnly(true);
         output->setLineWrapMode(QPlainTextEdit::NoWrap);
