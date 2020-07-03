@@ -487,8 +487,8 @@ void Window::onMouseAlgoComboBoxChanged(QString name) {
     m_runStatus->setText("");
     m_runStatus->setStyleSheet("");
     m_runOutput->clear();
-    SettingsMisc::setRecentMouseAlgo(name);
     stats->resetAll();
+    SettingsMisc::setRecentMouseAlgo(name);
 }
 
 void Window::onMouseAlgoEditButtonPressed() {
@@ -790,6 +790,9 @@ void Window::startRun() {
     m_runOutput->clear();
     m_mouseAlgoOutputTabWidget->setCurrentWidget(m_runOutput);
 
+    // reset score
+    stats->resetAll();
+
     // Start the run process
     if (ProcessUtilities::start(runCommand, directory, process)) {
 
@@ -818,9 +821,6 @@ void Window::startRun() {
         // Only enabled while mouse is running
         m_pauseButton->setEnabled(true);
         m_resetButton->setEnabled(true);
-
-        // reset score
-        stats->resetAll();
     } 
     else {
         // Clean up the failed process
@@ -1279,11 +1279,11 @@ void Window::updateMouseProgress(double progress) {
             m_movement = Movement::NONE;
         }
         // determine if the goal was reached
-        if (m_maze->isGoal(m_startingLocation)) {
-            stats->finishRun(true); // record a finished start-to-finish run, if valid
+        if (m_maze->isInCenter(m_startingLocation)) {
+            stats->finishRun(); // record a completed start-to-finish run
         }
         else if (m_startingLocation.first == 0 && m_startingLocation.second == 0) {
-            stats->finishRun(false);
+            stats->endUnfinishedRun();
         }
     }
 }
@@ -1518,7 +1518,7 @@ void Window::ackReset() {
     m_resetButton->setText("Reset");
     m_wasReset = false;
     stats->penalizeForReset();
-    stats->finishRun(false);
+    stats->endUnfinishedRun();
 }
 
 QString Window::boolToString(bool value) const {

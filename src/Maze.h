@@ -18,7 +18,7 @@ public:
     int getWidth() const;
     int getHeight() const;
     const Tile* getTile(int x, int y) const;
-    bool isGoal(QPair<int, int> location) const;
+    bool isInCenter(QPair<int, int> location) const;
 private:
 
     QVector<QVector<Tile>> m_tiles;

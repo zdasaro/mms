@@ -51,12 +51,8 @@ const Tile* Maze::getTile(int x, int y) const {
     return &m_tiles.at(x).at(y);
 }
 
-bool Maze::isGoal(QPair<int, int> location) const {
-    int x2 = Maze::getWidth() / 2;
-    int x1 = x2 - 1;
-    int y2 = Maze::getHeight() / 2;
-    int y1 = y2 - 1;
-    return ((location.first == x1 || location.first == x2) && (location.second == y1 || location.second == y2));
+bool Maze::isInCenter(QPair<int, int> location) const {
+    return getCenterPositions(getWidth(), getHeight()).contains(location);
 }
 
 Maze::Maze(BasicMaze basicMaze) {
