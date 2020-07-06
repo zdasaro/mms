@@ -268,16 +268,16 @@ Window::Window(QWidget *parent) :
 
     // Add stats labels
     stats = new Stats();
-    createStat("Total Distance", TOTAL_DISTANCE, 0, 0, 0, 1, statsLayout);
-    createStat("Total Effective Distance", TOTAL_EFFECTIVE_DISTANCE, 1, 0, 1, 1, statsLayout);
-    createStat("Total Turns", TOTAL_TURNS, 2, 0, 2, 1, statsLayout);
-    createStat("Current Run Distance", CURRENT_RUN_DISTANCE, 0, 2, 0, 3, statsLayout);
-    createStat("Current Run Effective Distance", CURRENT_RUN_EFFECTIVE_DISTANCE, 1, 2, 1, 3, statsLayout);
-    createStat("Current Run Turns", CURRENT_RUN_TURNS, 2, 2, 2, 3, statsLayout);
-    createStat("Best Run Distance", BEST_RUN_DISTANCE, 3, 0, 3, 1, statsLayout);
-    createStat("Best Run Effective Distance", BEST_RUN_EFFECTIVE_DISTANCE, 4, 0, 4, 1, statsLayout);
-    createStat("Best Run Turns", BEST_RUN_TURNS, 5, 0, 5, 1, statsLayout);
-    createStat("Score", SCORE, 6, 0, 6, 1, statsLayout);
+    createStat("Total Distance", StatsEnum::TOTAL_DISTANCE, 0, 0, 0, 1, statsLayout);
+    createStat("Total Effective Distance", StatsEnum::TOTAL_EFFECTIVE_DISTANCE, 1, 0, 1, 1, statsLayout);
+    createStat("Total Turns", StatsEnum::TOTAL_TURNS, 2, 0, 2, 1, statsLayout);
+    createStat("Current Run Distance", StatsEnum::CURRENT_RUN_DISTANCE, 0, 2, 0, 3, statsLayout);
+    createStat("Current Run Effective Distance", StatsEnum::CURRENT_RUN_EFFECTIVE_DISTANCE, 1, 2, 1, 3, statsLayout);
+    createStat("Current Run Turns", StatsEnum::CURRENT_RUN_TURNS, 2, 2, 2, 3, statsLayout);
+    createStat("Best Run Distance", StatsEnum::BEST_RUN_DISTANCE, 3, 0, 3, 1, statsLayout);
+    createStat("Best Run Effective Distance", StatsEnum::BEST_RUN_EFFECTIVE_DISTANCE, 4, 0, 4, 1, statsLayout);
+    createStat("Best Run Turns", StatsEnum::BEST_RUN_TURNS, 5, 0, 5, 1, statsLayout);
+    createStat("Score", StatsEnum::SCORE, 6, 0, 6, 1, statsLayout);
 
     // Add the build and run outputs to the panel
     panelLayout->addWidget(m_mouseAlgoOutputTabWidget);
@@ -1394,6 +1394,7 @@ bool Window::moveForward(int distance) {
     if (m_startingLocation.first == 0 && m_startingLocation.second == 0) {
         stats->startRun();
     }
+    // increase the stats by the distance that will be travelled
     stats->addDistance(moves);
     return true;
 }

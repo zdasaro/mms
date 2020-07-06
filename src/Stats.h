@@ -2,22 +2,19 @@
 
 #include <QLineEdit>
 #include <QMap>
-#define NUMBER_OF_INT_STATS 6
-#define NUMBER_OF_FLOAT_STATS 3
-#define NUMBER_OF_STATS 10
 #define UNSOLVED_SCORE 2000
 
 namespace mms {
 
-enum StatsEnum{TOTAL_DISTANCE,
+enum class StatsEnum{TOTAL_DISTANCE,
                TOTAL_TURNS,
                BEST_RUN_DISTANCE,
                BEST_RUN_TURNS,
                CURRENT_RUN_DISTANCE,
-               CURRENT_RUN_TURNS, // integers
+               CURRENT_RUN_TURNS,
                TOTAL_EFFECTIVE_DISTANCE,
                BEST_RUN_EFFECTIVE_DISTANCE,
-               CURRENT_RUN_EFFECTIVE_DISTANCE, // floats
+               CURRENT_RUN_EFFECTIVE_DISTANCE,
                SCORE // has a text box but is not saved in an array
               };
 
@@ -35,18 +32,13 @@ public:
     void penalizeForReset(); // Applies a penalty when the mouse resets to the start tile
 
 private:
-//    int intStatValues[NUMBER_OF_INT_STATS]; // total distance, turns
-    QMap<StatsEnum, int> intStatValues;
-//    float floatStatValues[NUMBER_OF_FLOAT_STATS]; // effective distance, score
-    QMap<StatsEnum, float> floatStatValues;
-    QLineEdit* textField[NUMBER_OF_STATS];
+    QMap<StatsEnum, float> statValues;
+    QMap<StatsEnum, QLineEdit*> textField;
     bool startedRun;
     bool solved;
     float penalty;
     void updateScore();
-    void increment(StatsEnum stat, int increase);
     void increment(StatsEnum stat, float increase);
-    void setStat(StatsEnum stat, int value);
     void setStat(StatsEnum stat, float value);
     static float getEffectiveDistance(int distance);
     void reset(StatsEnum stat);
